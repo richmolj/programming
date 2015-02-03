@@ -8,13 +8,20 @@ class Cat
   end
 
   def meow
-    puts "Meow! I am #{@name}!"
+    if fat?
+      puts "CHEEZBURGR"
+    else
+      puts "Meow!"
+    end
   end
 
+  def fat?
+    @weight > 25
+  end
 end
 
-felix    = Cat.new('Felix')
-garfield = Cat.new('Garfield')
+felix    = Cat.new(name: 'Felix',    color: 'black',  weight: 10)
+garfield = Cat.new(name: 'Garfield', color: 'orange', weight: 50)
 
 felix.meow
 garfield.meow
