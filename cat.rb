@@ -1,15 +1,23 @@
-class Cat
-  attr_accessor :name
-  attr_accessor :color
-  attr_accessor :weight
+require 'active_record'
 
-  def initialize(attrs)
-    attrs.each_pair { |k,v| send("#{k}=", v) }
+ActiveRecord::Base.establish_connection(:adapter => "sqlite3", :database => ":memory:")
+ActiveRecord::Migration.verbose = false
+
+ActiveRecord::Schema.define do
+  create_table :cats do |t|
+    t.integer :owner_id
+    t.string :name
+    t.string :color
+    t.integer :weight
   end
 
-  def owner
-    OWNERS.find { |p| p.cat_name == @name }
+  create_table :owners do |t|
+    t.string :name
   end
+end
+
+class Cat < ActiveRecord::Base
+  belongs_to :owner
 
   def meow
     if fat?
@@ -20,25 +28,30 @@ class Cat
   end
 
   def fat?
-    @weight > 25
+    weight > 25
   end
 end
 
-class Owner
-  attr_accessor :name
-  attr_accessor :cat_name
-
-  def initialize(attrs)
-    attrs.each_pair { |k,v| send("#{k}=", v) }
-  end
+class Owner < ActiveRecord::Base
+  has_one :cat
 end
 
-OWNERS = []
-OWNERS << Owner.new(name: 'John Doe',     cat_name: 'Felix')
-OWNERS << Owner.new(name: 'Jon Arbuckle', cat_name: 'Garfield')
+# Persist Data
+john = Owner.create(name: 'John Doe')
+jon  = Owner.create(name: 'Jon Arbuckle')
+Cat.create(name: 'Felix',    color: 'black',  weight: 10, owner: john)
+Cat.create(name: 'Garfield', color: 'orange', weight: 50, owner: jon)
 
-felix    = Cat.new(name: 'Felix',    color: 'black',  weight: 10)
-garfield = Cat.new(name: 'Garfield', color: 'orange', weight: 50)
+# Load data
+felix    = Cat.find(1)
+garfield = Cat.find(2)
 
+# Take action
 felix.meow
+garfield.meow
+
+# Update data
+garfield.update_attribute(:weight, 15)
+
+# See change
 garfield.meow
